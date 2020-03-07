@@ -1,0 +1,7 @@
+postgres:
+  database: test_db
+  user: test_user
+  password: testpswd
+  host: db-test
+  port: 5432
+

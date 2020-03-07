@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  project-test:
+    build:
+      context: ./src
+      dockerfile: dockerfile
+    volumes:
+      - ./test:/test_result
+    depends_on:
+      - db-test
+    command: ["/usr/src/boot-test.sh"]
+  db-test:
+    build:
+      context: ./pgdump
+      dockerfile: dockerfile_pg_test
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+      POSTGRES_PASSWORD: "password"

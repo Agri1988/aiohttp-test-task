@@ -1,0 +1,53 @@
+<script type="text/x-template" id="car">
+  <div>
+    <div class="row" v-if="!create_new_car">
+      <div class="col-2" @click.prevent="create_new_car = true">
+        <button class="btn btn-info">
+          <b-icon icon="plus" variant="" ></b-icon>
+        </button>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-12">
+        <car_list v-if="!create_new_car" @edit_car="edit_car">
+
+        </car_list>
+
+        <car_create
+            v-if="create_new_car"
+            @close_car_create="create_new_car = false; car_object_for_edit = undefined"
+            :car_initial="car_object_for_edit"
+            >
+
+        </car_create>
+
+      </div>
+    </div>
+  </div>
+
+</script>
+
+{% include "car/car_list.html" %}
+{% include "car/car_create.html" %}
+
+<script>
+  Vue.component('car_list', car_list);
+  Vue.component('car_create', car_create);
+
+  let car = {
+    template:'#car',
+    delimiters: ["[[", "]]"],
+    data() {
+      return {
+        create_new_car: false,
+        car_object_for_edit: undefined
+      }
+    },
+    methods: {
+      edit_car: function (car) {
+        this.car_object_for_edit = car;
+        this.create_new_car = true;
+      }
+    }
+  }
+</script>

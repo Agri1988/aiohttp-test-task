@@ -1,0 +1,66 @@
+<script type="text/x-template" id="car_list">
+  <ul class="list-group">
+    <li class="list-group-item">
+      <div class="row">
+        <div class="col-2">
+          <strong>
+            #
+          </strong>
+        </div>
+
+        <div class="col-5">
+          <strong>
+            Model
+          </strong>
+        </div>
+
+        <div class="col-5">
+          <strong>
+            Year
+          </strong>
+        </div>
+
+      </div>
+    </li>
+    <li class="list-group-item list-group-item-action"
+        v-for="car, index in car_list" @click.prevent="$emit('edit_car', car)">
+      <div class="row">
+        <div class="col-2">
+          [[index + 1]]
+        </div>
+
+        <div class="col-5">
+          [[car.model]]
+        </div>
+
+        <div class="col-5">
+          [[car.year]]
+        </div>
+      </div>
+    </li>
+  </ul>
+</script>
+
+<script>
+  let car_list = {
+    template:'#car_list',
+    delimiters: ["[[", "]]"],
+    data() {
+      return {
+        car_list: []
+      }
+    },
+    methods: {
+      get_car_list: function () {
+        axios_instance.get('car/').then(response=>{
+          if (response.status === 200){
+            this.car_list = response.data
+          }
+        })
+      }
+    },
+    mounted: function () {
+      this.get_car_list()
+    }
+  }
+</script>

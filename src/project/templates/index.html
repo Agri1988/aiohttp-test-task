@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+      Test task
+    </title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<link rel="stylesheet" href="/static/css/bootstrap.min.css">
+<link rel="stylesheet" href="static/css/bootstrap-vue.min.css">
+<link rel="stylesheet" href="static/css/bootstrap-vue-icons.min.css">
+<script src="/static/js/axios.min.js"></script>
+<script src="/static/js/polyfill.min.js"></script>
+<script src="/static/js/vue.js"></script>
+<script src="/static/js/bootstrap-vue-icons.min.js"></script>
+<script src="/static/js/bootstrap-vue.min.js"></script>
+
+</head>
+<body>
+
+<div id="app" class="wrapper">
+  <div class="container content mt-5">
+     <nav class="navbar navbar-expand-md bg-info navbar-dark navbar-fixed-top mb-3" role="navigation" style="border-radius: 5px">
+        <!-- Toggler/collapsibe Button -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar links -->
+        <div class="collapse navbar-collapse" id="collapsibleNavbar">
+          <ul class="navbar-nav">
+            <li class="nav-item" v-for="nav_item, nav_name in navbar">
+              <a class="nav-link text-white border border-white rounded ml-1"
+                @click.prevent="switch_tab(nav_name)"
+                href="#">[[nav_item.verbose_name]]</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <div>
+        <div class="text-center">
+          <h1>
+            [[active_tab]]
+          </h1>
+        </div>
+          <employee
+              v-if="navbar.employee.is_visible">
+
+          </employee>
+
+          <car
+              v-if="navbar.car.is_visible">
+
+          </car>
+
+          <spares
+              v-if="navbar.spares.is_visible">
+
+          </spares>
+      </div>
+  </div>
+
+</div>
+
+{% include "employee/employee.html" %}
+{% include "car/car.html" %}
+{% include "spares/spares.html" %}
+
+
+<script>
+  {#let URL_PREFIX = '{{ request.scheme }}' + '://' + '{{ request.META.HTTP_HOST }}' + '/';#}
+  let URL_PREFIX = 'https' + '://' + '0.0.0.0'+':5443' + '/';
+  let axios_instance = axios.create(
+      {
+          baseURL: URL_PREFIX,
+          headers:{},
+      }
+  );
+  Vue.component('employee', employee);
+  Vue.component('car', car);
+  Vue.component('spares', spares);
+  new Vue({
+    el: '#app',
+    delimiters: ['[[', ']]'],
+    components: {
+
+    },
+    data: function () {
+      return {
+        navbar: {
+          employee: {
+            verbose_name: 'Employees',
+            is_visible: true
+          },
+          car: {
+            verbose_name: 'Cars',
+            is_visible: false
+          },
+          spares: {
+            verbose_name: 'Spares',
+            is_visible: false
+          },
+        },
+      }
+    },
+    computed: {
+      active_tab: function () {
+        for (let tab in this.navbar){
+          if (this.navbar[tab].is_visible){
+            return this.navbar[tab].verbose_name
+          }
+        }
+      }
+    },
+    methods: {
+      switch_tab: function (active_tab) {
+          {#console.log(active_tab)#}
+        for (let tab in this.navbar){
+          if (active_tab === tab){
+              console.log(tab)
+            this.navbar[tab].is_visible = true
+          } else {
+            this.navbar[tab].is_visible = false
+          }
+        }
+      },
+    }
+  })
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<script type="text/x-template" id="spares_list">
+  <ul class="list-group">
+    <li class="list-group-item">
+      <div class="row">
+        <div class="col-2">
+          <strong>
+            #
+          </strong>
+        </div>
+
+        <div class="col-5">
+          <strong>
+            Name
+          </strong>
+        </div>
+
+        <div class="col-5">
+          <strong>
+            Car
+          </strong>
+        </div>
+
+      </div>
+    </li>
+    <li class="list-group-item list-group-item-action"
+        v-for="spares, index in spares_list" @click.prevent="$emit('edit_spares', spares)">
+      <div class="row">
+        <div class="col-2">
+          [[index + 1]]
+        </div>
+
+        <div class="col-5">
+          [[spares.name]]
+        </div>
+
+        <div class="col-5">
+          [[spares.car_model]]
+        </div>
+      </div>
+    </li>
+  </ul>
+</script>
+
+<script>
+  let spares_list = {
+    template:'#spares_list',
+    delimiters: ["[[", "]]"],
+    data() {
+      return {
+        spares_list: []
+      }
+    },
+    methods: {
+      get_spares_list: function () {
+        axios_instance.get('spares_with_car/').then(response=>{
+          if (response.status === 200){
+            this.spares_list = response.data
+          }
+        })
+      }
+    },
+    mounted: function () {
+      this.get_spares_list()
+    }
+  }
+</script>

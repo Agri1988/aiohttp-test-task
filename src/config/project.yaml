@@ -1,0 +1,7 @@
+postgres:
+  database: test_task
+  user: test_user
+  password: testpswd
+  host: db
+  port: 5432
+

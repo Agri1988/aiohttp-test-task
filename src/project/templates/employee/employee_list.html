@@ -1,0 +1,85 @@
+<script type="text/x-template" id="employee_list">
+  <ul class="list-group">
+    <li class="list-group-item">
+      <div class="row">
+        <div class="col-1">
+          <strong>
+            #
+          </strong>
+        </div>
+
+        <div class="col-3">
+          <strong>
+            Surname
+          </strong>
+        </div>
+
+        <div class="col-3">
+          <strong>
+            Name
+          </strong>
+        </div>
+
+        <div class="col-3">
+          <strong>
+            Patronymic
+          </strong>
+        </div>
+
+        <div class="col-1">
+          <strong>
+            Sex
+          </strong>
+        </div>
+      </div>
+    </li>
+    <li class="list-group-item list-group-item-action"
+        v-for="employee, index in employee_list" @click.prevent="$emit('edit_employee', employee)">
+      <div class="row">
+        <div class="col-1">
+          [[index + 1]]
+        </div>
+
+        <div class="col-3">
+          [[employee.surname]]
+        </div>
+
+        <div class="col-3">
+          [[employee.name]]
+        </div>
+
+        <div class="col-3">
+          [[employee.name]]
+        </div>
+
+        <div class="col-1">
+          [[employee.sex]]
+        </div>
+      </div>
+    </li>
+  </ul>
+</script>
+
+<script>
+  let employee_list = {
+    template:'#employee_list',
+    delimiters: ["[[", "]]"],
+    data() {
+      return {
+        employee_list: []
+      }
+    },
+    methods: {
+      get_employee_list: function () {
+        axios_instance.get('employee/').then(response=>{
+          if (response.status === 200){
+            this.employee_list = response.data
+          }
+        })
+      }
+    },
+    mounted: function () {
+      this.get_employee_list()
+    }
+  }
+</script>

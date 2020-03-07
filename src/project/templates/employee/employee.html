@@ -1,0 +1,53 @@
+<script type="text/x-template" id="employee">
+  <div>
+    <div class="row" v-if="!create_new_employee">
+      <div class="col-2" @click.prevent="create_new_employee = true">
+        <button class="btn btn-info">
+          <b-icon icon="plus" variant="" ></b-icon>
+        </button>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-12">
+        <employee_list v-if="!create_new_employee" @edit_employee="edit_employee">
+
+        </employee_list>
+
+        <employee_create
+            v-if="create_new_employee"
+            @close_employee_create="create_new_employee = false; employee_object_for_edit = undefined"
+            :employee_initial="employee_object_for_edit"
+            >
+
+        </employee_create>
+
+      </div>
+    </div>
+  </div>
+
+</script>
+
+{% include "employee/employee_list.html" %}
+{% include "employee/employee_create.html" %}
+
+<script>
+  Vue.component('employee_list', employee_list);
+  Vue.component('employee_create', employee_create);
+
+  let employee = {
+    template:'#employee',
+    delimiters: ["[[", "]]"],
+    data() {
+      return {
+        create_new_employee: false,
+        employee_object_for_edit: undefined
+      }
+    },
+    methods: {
+      edit_employee: function (employee) {
+        this.employee_object_for_edit = employee;
+        this.create_new_employee = true;
+      }
+    }
+  }
+</script>

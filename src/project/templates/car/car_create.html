@@ -1,0 +1,129 @@
+<script type="text/x-template" id="car_create">
+  <div class="row">
+    <div class="col-1 offset-11">
+      <b-icon-x-square
+          variant="danger"
+          style="width: 3em; height: 3em; cursor: pointer"
+          @click.prevent="$emit('close_car_create')"
+      >
+
+      </b-icon-x-square>
+    </div>
+    <div class="col-12">
+      <b-container fluid>
+
+        <b-row class="my-1">
+          <b-col sm="2">
+            <label for="input-large">Model:</label>
+          </b-col>
+          <b-col sm="10">
+            <b-form-input
+                id="input-large"
+                size="lg"
+                placeholder="Enter car model" v-model="car.model">
+
+            </b-form-input>
+          </b-col>
+        </b-row>
+
+        <b-row class="my-1">
+          <b-col sm="2">
+            <label for="input-large">Year:</label>
+          </b-col>
+          <b-col sm="10">
+            <b-form-input
+                id="input-large"
+                size="lg"
+                type="number"
+                placeholder="Enter year"
+                v-model="car.year"
+            >
+
+            </b-form-input>
+          </b-col>
+        </b-row>
+
+        <b-button variant="info" @click.prevent="save_car">Save</b-button>
+    </b-container>
+    </div>
+  </div>
+</script>
+
+<script>
+  let car_create = {
+    template:'#car_create',
+    delimiters: ["[[", "]]"],
+    props:{
+      car_initial: {}
+    },
+    data() {
+      return {
+        car: this.get_empty_car()
+      }
+    },
+    methods: {
+      save_new_car: function(car){
+        axios_instance.post('car/', car).then(response=>{
+          if (response.status === 201){
+            this.$emit('close_car_create')
+          } else {
+            console.log(response.data, "ERROR")
+          }
+        })
+      },
+      update_car: function(car){
+        axios_instance.put(`car/${car.id}/`, car).then(response=>{
+          if (response.status === 200){
+            this.$emit('close_car_create')
+          } else {
+            console.log(response.data, "ERROR")
+          }
+        })
+      },
+      prepare_car_object: function(){
+        let car = {};
+        for (let key in this.car){
+          if (key === 'id'){
+            if (this.car[key] !== null){
+              car[key] = this.car[key]
+            }
+          } else {
+            if ([null, ''].includes(this.car[key])){
+              car[key] = this.car[key]
+              this.$bvToast.toast(`Please enter ${key}`, {
+                title: `Error`,
+                variant: 'danger',
+                solid: true
+              });
+              return
+            }
+            car[key] = this.car[key]
+          }
+        }
+        return car
+      },
+      save_car: function () {
+        let car = this.prepare_car_object();
+        if (car) {
+          if (this.car.id === null) {
+            this.save_new_car(car)
+          } else {
+            this.update_car(car)
+          }
+        }
+      },
+      get_empty_car: function () {
+        return {
+          id: null,
+          model: null,
+          year: null,
+        }
+      },
+    },
+    mounted: function () {
+      if (this.car_initial !== undefined){
+        this.car = this.car_initial
+      }
+    }
+  }
+</script>

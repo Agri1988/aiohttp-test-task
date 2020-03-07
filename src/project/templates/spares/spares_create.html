@@ -1,0 +1,137 @@
+<script type="text/x-template" id="spares_create">
+  <div class="row">
+    <div class="col-1 offset-11">
+      <b-icon-x-square
+          variant="danger"
+          style="width: 3em; height: 3em; cursor: pointer"
+          @click.prevent="$emit('close_spares_create')"
+      >
+
+      </b-icon-x-square>
+    </div>
+    <div class="col-12">
+      <b-container fluid>
+
+        <b-row class="my-1">
+          <b-col sm="2">
+            <label for="input-large">Name:</label>
+          </b-col>
+          <b-col sm="10">
+            <b-form-input
+                id="input-large"
+                size="lg"
+                placeholder="Enter spares name" v-model="spares.name">
+
+            </b-form-input>
+          </b-col>
+        </b-row>
+
+        <b-row class="my-1">
+          <b-col sm="2">
+            <label for="input-large">Car:</label>
+          </b-col>
+          <b-col sm="10">
+            <b-form-select
+              v-model="spares.car_id"
+              :options="car_list"
+              class="mb-3"
+              value-field="id"
+              text-field="model"
+            ></b-form-select>
+          </b-col>
+        </b-row>
+
+        <b-button variant="info" @click.prevent="save_spares">Save</b-button>
+    </b-container>
+    </div>
+  </div>
+</script>
+
+<script>
+  let spares_create = {
+    template:'#spares_create',
+    delimiters: ["[[", "]]"],
+    props:{
+      spares_initial: {}
+    },
+    data() {
+      return {
+        spares: this.get_empty_spares(),
+        car_list: []
+      }
+    },
+    methods: {
+      get_car_list: function(){
+        axios_instance.get('car/').then(response=>{
+          if (response.status === 200){
+            this.car_list = response.data
+          }
+        })
+      },
+      save_new_spares: function(spares){
+        axios_instance.post('spares/', spares).then(response=>{
+          if (response.status === 201){
+            this.$emit('close_spares_create')
+          } else {
+            console.log(response.data, "ERROR")
+          }
+        })
+      },
+      update_spares: function(spares){
+        axios_instance.put(`spares/${spares.id}/`, spares).then(response=>{
+          if (response.status === 200){
+            this.$emit('close_spares_create')
+          } else {
+            console.log(response.data, "ERROR")
+          }
+        })
+      },
+      prepare_spares_object: function(){
+        let spares = {};
+        for (let key in this.spares){
+          if (key === 'id') {
+            if (this.spares[key] !== null) {
+              spares[key] = this.spares[key]
+            }
+          } else if (key !== 'car_model'){
+            if ([null, ''].includes(this.spares[key])){
+              spares[key] = this.spares[key]
+              this.$bvToast.toast(`Please enter ${key}`, {
+                title: `Error`,
+                variant: 'danger',
+                solid: true
+              });
+              return
+            }
+            spares[key] = this.spares[key]
+          }
+        }
+        return spares
+      },
+      save_spares: function () {
+        let spares = this.prepare_spares_object();
+        if (spares){
+          if (this.spares.id === null){
+            this.save_new_spares(spares)
+          } else {
+            this.update_spares(spares)
+          }
+        }
+      },
+      get_empty_spares: function () {
+        return {
+          id: null,
+          name: null,
+          country: null,
+          car_id: null
+        }
+      },
+    },
+    mounted: function () {
+      if (this.spares_initial !== undefined){
+        this.spares = this.spares_initial
+      }
+      this.get_car_list()
+    }
+  }
+</script>

@@ -1,0 +1,52 @@
+<script type="text/x-template" id="spares">
+  <div>
+    <div class="row" v-if="!create_new_spares">
+      <div class="col-2" @click.prevent="create_new_spares = true">
+        <button class="btn btn-info">
+          <b-icon icon="plus" variant="" ></b-icon>
+        </button>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-12">
+        <spares_list v-if="!create_new_spares" @edit_spares="edit_spares">
+
+        </spares_list>
+
+        <spares_create
+            v-if="create_new_spares"
+            @close_spares_create="create_new_spares = false; spares_object_for_edit = undefined"
+            :spares_initial="spares_object_for_edit"
+            >
+        </spares_create>
+
+      </div>
+    </div>
+  </div>
+
+</script>
+
+{% include "spares/spares_list.html" %}
+{% include "spares/spares_create.html" %}
+
+<script>
+  Vue.component('spares_list', spares_list);
+  Vue.component('spares_create', spares_create);
+
+  let spares = {
+    template:'#spares',
+    delimiters: ["[[", "]]"],
+    data() {
+      return {
+        create_new_spares: false,
+        spares_object_for_edit: undefined
+      }
+    },
+    methods: {
+      edit_spares: function (spares) {
+        this.spares_object_for_edit = spares;
+        this.create_new_spares = true;
+      }
+    }
+  }
+</script>

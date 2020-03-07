@@ -1,0 +1,162 @@
+<script type="text/x-template" id="employee_create">
+  <div class="row">
+    <div class="col-1 offset-11">
+      <b-icon-x-square
+          variant="danger"
+          style="width: 3em; height: 3em; cursor: pointer"
+          @click.prevent="$emit('close_employee_create')"
+      >
+
+      </b-icon-x-square>
+    </div>
+    <div class="col-12">
+      <b-container fluid>
+
+        <b-row class="my-1">
+          <b-col sm="2">
+            <label for="input-large">Surname:</label>
+          </b-col>
+          <b-col sm="10">
+            <b-form-input
+                id="input-large"
+                size="lg"
+                placeholder="Enter your surname" v-model="employee.surname">
+
+            </b-form-input>
+          </b-col>
+        </b-row>
+
+        <b-row class="my-1">
+          <b-col sm="2">
+            <label for="input-large">Name:</label>
+          </b-col>
+          <b-col sm="10">
+            <b-form-input
+                id="input-large"
+                size="lg"
+                placeholder="Enter your name"
+                v-model="employee.name"
+            >
+
+            </b-form-input>
+          </b-col>
+        </b-row>
+
+        <b-row class="my-1">
+          <b-col sm="2">
+            <label for="input-large">Patronymic:</label>
+          </b-col>
+          <b-col sm="10">
+            <b-form-input
+                id="input-large"
+                size="lg"
+                placeholder="Enter your patronymic"
+                v-model="employee.patronymic"
+            >
+
+            </b-form-input>
+          </b-col>
+        </b-row>
+
+        <b-row class="my-1">
+          <b-col sm="2">
+            <label for="input-large">Sex:</label>
+          </b-col>
+          <b-col sm="10">
+            <b-form-input
+                id="input-large"
+                size="lg"
+                placeholder="Enter your sex"
+                v-model="employee.sex"
+            >
+
+            </b-form-input>
+          </b-col>
+        </b-row>
+
+        <b-button variant="info" @click.prevent="save_employee">Save</b-button>
+    </b-container>
+    </div>
+  </div>
+</script>
+
+<script>
+  let employee_create = {
+    template:'#employee_create',
+    delimiters: ["[[", "]]"],
+    props:{
+      employee_initial: {}
+    },
+    data() {
+      return {
+        employee: this.get_empty_employee()
+      }
+    },
+    methods: {
+      save_new_employee: function(employee){
+        axios_instance.post('employee/', employee).then(response=>{
+          if (response.status === 201){
+            this.$emit('close_employee_create')
+          } else {
+            console.log(response.data, "ERROR")
+          }
+        })
+      },
+      update_employee: function(employee){
+        axios_instance.put(`employee/${employee.id}/`, employee).then(response=>{
+          if (response.status === 200){
+            this.$emit('close_employee_create')
+          } else {
+            console.log(response.data, "ERROR")
+          }
+        })
+      },
+      prepare_employee_object: function(){
+        let employee = {};
+        for (let key in this.employee){
+          if (key === 'id'){
+            if (this.employee[key] !== null){
+              employee[key] = this.employee[key]
+            }
+          } else {
+            if ([null, ''].includes(this.employee[key])){
+              employee[key] = this.employee[key]
+              this.$bvToast.toast(`Please enter ${key}`, {
+                title: `Error`,
+                variant: 'danger',
+                solid: true
+              });
+              return
+            }
+            employee[key] = this.employee[key]
+          }
+        }
+        return employee
+      },
+      save_employee: function () {
+        let employee = this.prepare_employee_object();
+        if (employee){
+          if (this.employee.id === null){
+            this.save_new_employee(employee)
+          } else {
+            this.update_employee(employee)
+          }
+        }
+      },
+      get_empty_employee: function () {
+        return {
+          id: null,
+          surname: null,
+          name: null,
+          patronymic: null,
+          sex: null
+        }
+      },
+    },
+    mounted: function () {
+      if (this.employee_initial !== undefined){
+        this.employee = this.employee_initial
+      }
+    }
+  }
+</script>
