@@ -8,8 +8,6 @@ from routes import setup_routes
 from db import init_pg, close_pg
 
 
-
-
 app = web.Application()
 setup_routes(app)
 app['config'] = config

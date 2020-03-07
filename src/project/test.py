@@ -44,11 +44,6 @@ class EmployeeTestCase(AioHTTPTestCase):
         return app
 
     @unittest_run_loop
-    async def test_index(self):
-        response = await self.client.request('GET', '/')
-        assert 'Index' in await response.text()
-
-    @unittest_run_loop
     async def test_employee_create(self):
         first_employee = json.dumps({
             'name': 'Vasili',

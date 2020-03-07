@@ -1,15 +1,15 @@
 import psycopg2
 from project.settings import config
-from init_db import create_tables, create_engine
+from init_db import create_tables, create_engine, sample_data
 
 DSN = "postgresql://{user}:{password}@{host}:{port}/{database}".format(**config['postgres'])
 try:
     conn = psycopg2.connect(DSN)
     conn.close()
     try:
-        db_url = DSN.format(**config['postgres'])
-        engine = create_engine(db_url)
+        engine = create_engine(DSN)
         create_tables(engine)
+        sample_data(engine)
     except:
         pass
 except psycopg2.OperationalError:
