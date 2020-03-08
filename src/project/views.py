@@ -14,12 +14,49 @@ async def index(request):
 
 
 # ABSTRACT GET LIST OBJECT
-async def list_object(request, object_name):
+async def list_object(request, object_name, raw_query: str=None):
     async with request.app['db'].acquire() as conn:
-        cursor = await conn.execute(getattr(db, object_name).select())
+        query = getattr(db, object_name).select()
+        if raw_query is not None:
+            query = raw_query
+        cursor = await conn.execute(query)
         records = await cursor.fetchall()
         objects = [dict(q) for q in records]
         return web.json_response(status=200, data=objects)
+
+
+# FILTER OBJECTS BY FIELD
+async def filter_object_by_field(request: Request, object_name: str, object_field: str,
+                                 search_data: str, raw_query: str=None):
+    async with request.app['db'].acquire() as conn:
+        try:
+            model = getattr(db, object_name)
+            field = getattr(model.c, object_field)
+            query = model.select().where(field == search_data)
+            if raw_query is not None:
+                query = raw_query + f'WHERE {object_name}.{field}={search_data}'
+            cursor: ResultProxy = await conn.execute(query)
+            records = await cursor.fetchall()
+            objects = [dict(q) for q in records]
+            return web.json_response(status=200, data=objects)
+        except AttributeError:
+            return web.json_response(status=412, text='ObjectDoesNotContainsRequestField')
+
+
+# HANDLER SELECTOR BASED ON QUERY CONTENT
+async def handler_selector(request, object_name: str, raw_query: str=None):
+    params: MultiDictProxy = request.query
+    field = params.get('field')
+    search_data = params.get('search_data')
+    if all((field, search_data)):
+        return await filter_object_by_field(
+            request,
+            object_name=object_name,
+            object_field=field,
+            search_data=search_data
+        )
+    else:
+        return await list_object(request, object_name=object_name, raw_query=raw_query)
 
 
 # ABSTRACT GET OBJECT BY ID
@@ -72,36 +109,6 @@ async def update_object(request: Request, object_name: str):
         return web.Response(status=412, text='WrongRequestParam')
 
 
-# FILTER OBJECTS BY FIELD
-async def filter_object_by_field(request: Request, object_name: str, object_field: str, search_data: str):
-    async with request.app['db'].acquire() as conn:
-        try:
-            model = getattr(db, object_name)
-            field = getattr(model.c, object_field)
-            cursor: ResultProxy = await conn.execute(model.select().where(field == search_data))
-            records = await cursor.fetchall()
-            objects = [dict(q) for q in records]
-            return web.json_response(status=200, data=objects)
-        except AttributeError:
-            return web.json_response(status=412, text='ObjectDoesNotContainsRequestField')
-
-
-# HANDLER SELECTOR BASED ON QUERY CONTENT
-async def handler_selector(request, object_name: str):
-    params: MultiDictProxy = request.query
-    field = params.get('field')
-    search_data = params.get('search_data')
-    if all((field, search_data)):
-        return await filter_object_by_field(
-            request,
-            object_name=object_name,
-            object_field=field,
-            search_data=search_data
-        )
-    else:
-        return await list_object(request, object_name=object_name)
-
-
 # Employee API
 # GET EMPLOYEE LIST
 async def list_employee(request):
@@ -152,13 +159,10 @@ async def list_spares(request):
 
 # GET SPARES LIST WITH CAR
 async def list_spares_with_car(request):
-    async with request.app['db'].acquire() as conn:
-        cursor = await conn.execute("""
-SELECT s.id, s.name, s.car_id, s.country, (c2.model || ' ' || c2.year) as car_model FROM spares AS s 
-  LEFT JOIN car c2 on s.car_id = c2.id """)
-        records = await cursor.fetchall()
-        objects = [dict(q) for q in records]
-        return web.json_response(status=200, data=objects)
+    raw_query = """
+SELECT spares.id, spares.name, spares.car_id, spares.country, (car.model || ' ' || car.year) as car_model FROM spares 
+  LEFT JOIN car on spares.car_id = car.id """
+    return await handler_selector(request, 'spares', raw_query=raw_query)
 
 
 # GET SPARES INSTANCE

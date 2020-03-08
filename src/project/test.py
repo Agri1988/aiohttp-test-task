@@ -14,11 +14,6 @@ from db import employee, car, spares, init_pg, close_pg
 DSN = "postgresql://{user}:{password}@{host}:{port}/{database}"
 
 
-def create_tables(engine):
-    meta = MetaData()
-    meta.create_all(bind=engine, tables=[employee, car, spares])
-
-
 def drop_tables(engine):
     meta = MetaData()
     meta.drop_all(bind=engine, tables=[employee, car, spares])
@@ -34,8 +29,6 @@ class EmployeeTestCase(AioHTTPTestCase):
         pass
 
     async def get_application(self):
-        create_tables(engine)
-
         app = web.Application()
         setup_routes(app)
         app['config'] = config
@@ -49,19 +42,19 @@ class EmployeeTestCase(AioHTTPTestCase):
             'name': 'Vasili',
             'surname': 'Kukushkin',
             'patronymic': 'Vasilievich',
-            'sex': 'mail'
+            'sex': 'male'
         })
         second_employee = json.dumps({
             'name': 'Sergei',
             'surname': 'Semenov',
             'patronymic': 'Petrovich',
-            'sex': 'mail'
+            'sex': 'male'
         })
         third_employee = json.dumps({
             'name': 'Petr',
             'surname': 'Ivanov',
             'patronymic': 'Semenovich',
-            'sex': 'mail'
+            'sex': 'male'
         })
         await self.client.request('POST', '/employee/', data=first_employee)
         await self.client.request('POST', '/employee/', data=second_employee)
@@ -111,14 +104,28 @@ class EmployeeTestCase(AioHTTPTestCase):
         response = await self.client.request('GET', '/employee/')
         employee_list = await response.json()
         assert 200 == response.status
-        assert 3 == len(employee_list)
+        assert 6 == len(employee_list)
 
     @unittest_run_loop
     async def test_get_filter_employees(self):
-        response = await self.client.request('GET', '/employee/?field=sex&search_data=mail')
+        response = await self.client.request('GET', '/employee/?field=sex&search_data=male')
         employee_list = await response.json()
         assert 200 == response.status
-        assert 2 == len(employee_list)
+        assert 3 == len(employee_list)
+
+    @unittest_run_loop
+    async def test_get_all_spares(self):
+        response = await self.client.request('GET', '/spares/')
+        spares_list = await response.json()
+        assert 200 == response.status
+        assert 3 == len(spares_list)
+
+    @unittest_run_loop
+    async def test_get_filter_spares(self):
+        response = await self.client.request('GET', '/spares_with_car/?field=name&search_data=Engine 1.2')
+        employee_list = await response.json()
+        assert 200 == response.status
+        assert 1 == len(employee_list)
 
     @classmethod
     def tearDownClass(cls):

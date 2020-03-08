@@ -12,24 +12,40 @@
           <strong>
             Surname
           </strong>
+          <search_by_field
+              :field_name="'surname'" @search_data="get_employee_list">
+
+          </search_by_field>
         </div>
 
         <div class="col-3">
           <strong>
             Name
           </strong>
+          <search_by_field
+              :field_name="'name'" @search_data="get_employee_list">
+
+          </search_by_field>
         </div>
 
         <div class="col-3">
           <strong>
             Patronymic
           </strong>
+          <search_by_field
+              :field_name="'patronymic'" @search_data="get_employee_list">
+
+          </search_by_field>
         </div>
 
-        <div class="col-1">
+        <div class="col-2">
           <strong>
             Sex
           </strong>
+          <search_by_field
+              :field_name="'sex'" @search_data="get_employee_list">
+
+          </search_by_field>
         </div>
       </div>
     </li>
@@ -70,8 +86,9 @@
       }
     },
     methods: {
-      get_employee_list: function () {
-        axios_instance.get('employee/').then(response=>{
+      get_employee_list: function (search_data) {
+        search_data = get_query_for_field_search(search_data);
+        axios_instance.get(`employee/${search_data}`).then(response=>{
           if (response.status === 200){
             this.employee_list = response.data
           }

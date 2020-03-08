@@ -65,6 +65,7 @@
 
 </div>
 
+{% include "components/search_by_field.html" %}
 {% include "employee/employee.html" %}
 {% include "car/car.html" %}
 {% include "spares/spares.html" %}
@@ -79,6 +80,12 @@
           headers:{},
       }
   );
+
+  function get_query_for_field_search(search_data){
+    return search_data === undefined ? '' : `?field=${search_data['field']}&search_data=${search_data['search_data']}`;
+  }
+
+  Vue.component('search_by_field', search_by_field);
   Vue.component('employee', employee);
   Vue.component('car', car);
   Vue.component('spares', spares);

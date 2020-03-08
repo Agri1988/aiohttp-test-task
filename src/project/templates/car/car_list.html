@@ -12,12 +12,20 @@
           <strong>
             Model
           </strong>
+          <search_by_field
+              :field_name="'model'" @search_data="get_car_list">
+
+          </search_by_field>
         </div>
 
         <div class="col-5">
           <strong>
             Year
           </strong>
+          <search_by_field
+              :field_name="'year'" @search_data="get_car_list">
+
+          </search_by_field>
         </div>
 
       </div>
@@ -51,8 +59,9 @@
       }
     },
     methods: {
-      get_car_list: function () {
-        axios_instance.get('car/').then(response=>{
+      get_car_list: function (search_data) {
+        search_data = get_query_for_field_search(search_data);
+        axios_instance.get(`car/${search_data}`).then(response=>{
           if (response.status === 200){
             this.car_list = response.data
           }

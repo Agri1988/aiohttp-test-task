@@ -1,0 +1,40 @@
+<script type="text/x-template" id="search_by_field">
+  <div class="row">
+    <div class="col-lg-8">
+      <input class="form-control"
+             v-model="search_data"
+             @keyup.enter.prevent="$emit('search_data', {field: field_name, search_data: search_data});"
+      >
+    </div>
+    <div class="cpl-lg-4" v-if="![undefined, null, ''].includes(search_data)">
+      <b-icon-check-box
+          variant="success"
+          style="cursor: pointer; width: 2em; height: 2em"
+          @click.prevent="$emit('search_data', {field: field_name, search_data: search_data});">
+
+      </b-icon-check-box>
+      <b-icon-x-square
+          variant="danger"
+          style="cursor: pointer; width: 2em; height: 2em"
+          @click.prevent="$emit('search_data', undefined); search_data = ''">
+
+      </b-icon-x-square>
+    </div>
+  </div>
+</script>
+<script>
+  let search_by_field = {
+    template:'#search_by_field',
+    delimiters: ["[[", "]]"],
+    props: {
+      field_name: String,
+    },
+    data() {
+      return {
+        search_data: ""
+      }
+    },
+    methods: {
+    }
+  }
+</script>

@@ -12,6 +12,12 @@
           <strong>
             Name
           </strong>
+
+          <search_by_field
+              :field_name="'name'" @search_data="get_spares_list">
+
+          </search_by_field>
+
         </div>
 
         <div class="col-5">
@@ -51,8 +57,9 @@
       }
     },
     methods: {
-      get_spares_list: function () {
-        axios_instance.get('spares_with_car/').then(response=>{
+      get_spares_list: function (search_data) {
+        search_data = get_query_for_field_search(search_data);
+        axios_instance.get(`spares_with_car/${search_data}`).then(response=>{
           if (response.status === 200){
             this.spares_list = response.data
           }
